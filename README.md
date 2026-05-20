@@ -1,6 +1,6 @@
 # notification-system-go
 
-A horizontally scalable, multi-channel notification service in Go. Built to demonstrate distributed-systems patterns — Redis-backed job queues, worker pools, retries with exponential backoff, pluggable channel adapters, and full observability.
+A horizontally scalable, multi-channel notification service in Go. Built to demonstrate distributed-systems patterns - Redis-backed job queues, worker pools, retries with exponential backoff, pluggable channel adapters, and full observability.
 
 > **Status:** scaffold + working dev stack. Run `make up` and you have a queue, workers, Postgres, and a REST API on `localhost:8080`.
 

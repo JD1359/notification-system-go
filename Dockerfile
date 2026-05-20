@@ -1,7 +1,7 @@
 FROM golang:1.22-alpine AS build
 WORKDIR /src
 
-# Copy go.mod (and go.sum if it exists). Then resolve & download deps —
+# Copy go.mod (and go.sum if it exists). Then resolve & download deps -
 # this also generates go.sum inside the container if it's missing locally.
 COPY go.mod ./
 COPY go.su[m] ./

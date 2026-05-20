@@ -35,8 +35,8 @@ HTTP → │  REST API   │ ──┐
 - **Exponential backoff** retry (default 3 attempts: 5s, 25s, 125s) → dead-letter queue
 - **Per-channel rate limiting** (token bucket)
 - **Idempotency** via client-supplied `idempotency_key`
-- **Observability** — structured logs (zerolog), Prometheus metrics, healthcheck endpoint
-- **Graceful shutdown** — workers drain in-flight jobs before exit
+- **Observability** - structured logs (zerolog), Prometheus metrics, healthcheck endpoint
+- **Graceful shutdown** - workers drain in-flight jobs before exit
 
 ---
 
@@ -86,7 +86,7 @@ curl http://localhost:8080/v1/notifications/demo-001
 ```
 
 Headers:
-- `Idempotency-Key: <unique-id>` — required. Submitting the same key returns the original result.
+- `Idempotency-Key: <unique-id>` - required. Submitting the same key returns the original result.
 
 Response: `202 Accepted`
 ```json
@@ -167,7 +167,7 @@ make migrate              # apply SQL migrations
 make test                 # go test ./...
 make lint                 # golangci-lint run
 make loadtest             # k6 run loadtest/baseline.js
-make build                # binaries → ./bin/
+make build                # binaries = ./bin/
 ```
 
 ---
@@ -186,11 +186,11 @@ fly deploy
 
 ## What I learned building this
 
-- **At-least-once vs exactly-once** — exactly-once delivery across an unreliable channel (SMTP, SMS) is impossible; the achievable contract is at-least-once + idempotency on the receiver side.
-- **Redis Streams beat List + LPOP** for queues — consumer groups give you parallel work distribution with auto-claim on stuck messages.
-- **Dead-letter queues are essential** — without one, a single bad payload can wedge a worker pool indefinitely.
-- **Rate-limit by channel, not globally** — Twilio's SMS limit ≠ SendGrid's email limit, and a global limiter starves the faster channels.
-- **Graceful shutdown is half the work** — handling SIGTERM correctly (drain queue, close DB, flush logs) took ~30% of the total dev time and is the difference between zero downtime and data loss on deploys.
+- **At-least-once vs exactly-once** - exactly-once delivery across an unreliable channel (SMTP, SMS) is impossible; the achievable contract is at-least-once + idempotency on the receiver side.
+- **Redis Streams beat List + LPOP** for queues - consumer groups give you parallel work distribution with auto-claim on stuck messages.
+- **Dead-letter queues are essential** - without one, a single bad payload can wedge a worker pool indefinitely.
+- **Rate-limit by channel, not globally** - Twilio's SMS limit ≠ SendGrid's email limit, and a global limiter starves the faster channels.
+- **Graceful shutdown is half the work** - handling SIGTERM correctly (drain queue, close DB, flush logs) took ~30% of the total dev time and is the difference between zero downtime and data loss on deploys.
 
 ---
 

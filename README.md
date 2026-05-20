@@ -142,36 +142,32 @@ All via environment variables (see `.env.example`):
 
 ## Performance
 
-Tested locally on a MacBook Pro M2 (2 vCPU allocated to the API + 4 to workers):
+Tested locally with k6 on Windows 11 + Docker Desktop (WSL 2 backend). Load profile ramps from 50 → 500 concurrent virtual users over 4 minutes against the full stack (1 API container + 3 worker containers + Postgres + Redis).
 
-| Metric                            | Value          |
-|-----------------------------------|----------------|
-| Sustained API throughput          | **3,200 req/s**|
-| p50 latency (enqueue)             | **8 ms**       |
-| p99 latency (enqueue)             | **41 ms**      |
-| Worker throughput (mock channel)  | **1,800 jobs/s** per worker |
+| Metric                              | Value         |
+|-------------------------------------|---------------|
+| Total requests                      | **40,866**    |
+| Sustained throughput                | **170 req/s** |
+| Success rate                        | **98.77%**    |
+| p50 latency (POST /v1/notifications)| **17 ms**     |
+| p95 latency at peak (500 VUs)       | **349 ms**    |
+| End-to-end latency (POST → delivered, low load) | **~47 ms** |
 
-Test command:
+### Observed bottlenecks
+
+At the 500-VU peak the system breaches the p95 < 200ms target (reaches 349ms) and the < 1% error budget (1.22% timeouts). Profiling pointed at:
+
+- **Postgres connection pool saturation** — pgxpool defaults to a small max-connection count under high write fan-out.
+- **Redis XAdd contention** — single-stream writes serialize at the Redis side.
+
+Both are addressable: tune `pgxpool.Config.MaxConns`, partition the stream by channel, and add a write-through buffer for delivery logs. Running on native Linux instead of Docker Desktop on Windows would also remove a layer of networking overhead.
+
+### Reproduce
+
 ```bash
-make loadtest    # uses k6, scenarios in loadtest/
+docker compose up -d
+k6 run loadtest/baseline.js
 ```
-
----
-
-## Development
-
-```bash
-make help                 # list all targets
-make up                   # docker-compose up -d
-make down                 # docker-compose down
-make migrate              # apply SQL migrations
-make test                 # go test ./...
-make lint                 # golangci-lint run
-make loadtest             # k6 run loadtest/baseline.js
-make build                # binaries = ./bin/
-```
-
----
 
 ## Deployment
 
@@ -195,6 +191,3 @@ fly deploy
 
 ---
 
-## License
-
-MIT

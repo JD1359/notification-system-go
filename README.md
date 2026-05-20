@@ -157,8 +157,8 @@ Tested locally with k6 on Windows 11 + Docker Desktop (WSL 2 backend). Load prof
 
 At the 500-VU peak the system breaches the p95 < 200ms target (reaches 349ms) and the < 1% error budget (1.22% timeouts). Profiling pointed at:
 
-- **Postgres connection pool saturation** — pgxpool defaults to a small max-connection count under high write fan-out.
-- **Redis XAdd contention** — single-stream writes serialize at the Redis side.
+- **Postgres connection pool saturation** - pgxpool defaults to a small max-connection count under high write fan-out.
+- **Redis XAdd contention** - single-stream writes serialize at the Redis side.
 
 Both are addressable: tune `pgxpool.Config.MaxConns`, partition the stream by channel, and add a write-through buffer for delivery logs. Running on native Linux instead of Docker Desktop on Windows would also remove a layer of networking overhead.
 

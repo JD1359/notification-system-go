@@ -1,4 +1,4 @@
-# notification-system-go
+# Notification-system-go
 
 A horizontally scalable, multi-channel notification service in Go. Built to demonstrate distributed-systems patterns - Redis-backed job queues, worker pools, retries with exponential backoff, pluggable channel adapters, and full observability.
 
